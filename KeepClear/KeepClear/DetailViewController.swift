@@ -7,13 +7,26 @@
 //
 
 import UIKit
+import RealmSwift
 
-class DetailViewController: UIViewController {
+class DetailViewController: UITableViewController {
 
+    var currTask : Task?
+    
+    @IBOutlet weak var memoText: UITextField!
+    @IBOutlet weak var titleText: UITextField!
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        
+        if let _ = currTask {
+            titleText.text = currTask!.title
+            memoText.text = currTask!.memo
+        } else {
+            titleText.text = ""
+            memoText.text = ""
+            
+        }
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -21,15 +34,13 @@ class DetailViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+    // 模糊图片
+    func imageViewBlur( imageView : UIImageView) {
+        imageView.backgroundColor = UIColor.clearColor()
+        let blurEffect = UIBlurEffect(style: UIBlurEffectStyle.Light)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.frame = view.bounds
+        imageView.insertSubview(blurEffectView, atIndex: 0)
     }
-    */
 
 }
