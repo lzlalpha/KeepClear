@@ -3,4 +3,5 @@ use_frameworks!
 
 target ‘KeepClear’ do
   pod ‘RealmSwift’
+  pod ‘StaticDataTableViewController’
 end

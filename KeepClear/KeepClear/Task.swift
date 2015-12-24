@@ -11,14 +11,19 @@ import RealmSwift
 
 class Task: Object {
     
-//    dynamic var id = 0
+    dynamic var id = 0
+    // 标题
     dynamic var title = ""
+    // 是否提醒
+    dynamic var isAlertOn = false
+    // 提醒日期时间
+    dynamic var alertDateTime : NSDate?
+    // 备注
     dynamic var memo = ""
-    dynamic var backgroundImage = ""
     
-//    override static func primaryKey() -> String? {
-//        return "id"
-//    }
+    override static func primaryKey() -> String? {
+        return "id"
+    }
 
 // Specify properties to ignore (Realm won't persist these)
     

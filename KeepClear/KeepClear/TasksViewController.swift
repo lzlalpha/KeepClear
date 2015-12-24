@@ -13,6 +13,7 @@ class TasksViewController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
     
+    @IBOutlet weak var editButton: UIBarButtonItem!
     var tasks : Results<Task>?
     var selectedTask : Task?
     
@@ -27,6 +28,20 @@ class TasksViewController: UIViewController {
         
     }
 
+    // 编辑按钮
+    @IBAction func edit(sender: AnyObject) {
+        if editButton.tag == 100 { // 开始编辑
+            editButton.tag = 200
+            editButton.title = "Done"
+            tableView.setEditing(true, animated: true)
+            navigationItem.rightBarButtonItem?.enabled = false
+        } else { // 完成编辑
+            editButton.tag = 100
+            editButton.title = "Edit"
+            tableView.setEditing(false, animated: true)
+            navigationItem.rightBarButtonItem?.enabled = true
+        }
+    }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -47,27 +62,9 @@ class TasksViewController: UIViewController {
         performSegueWithIdentifier("showDetailSegue", sender: nil)
     }
     
-    
+    // 反转场景事件
     @IBAction func unwind(unwindSegue : UIStoryboardSegue) {
-        let vc = unwindSegue.sourceViewController as! DetailViewController
         let realm = try! Realm()
-        
-        if vc.currTask == nil { // 新增
-            let task = Task()
-            task.title = vc.titleText.text!
-            task.memo = vc.memoText.text!
-            
-            try! realm.write({ () -> Void in
-                realm.add(task)
-            })
-        } else { // 更新
-            try! realm.write({ () -> Void in
-                vc.currTask?.title = vc.titleText.text!
-                vc.currTask?.memo = vc.memoText.text!
-                
-            })
-        }
-
         tasks = realm.objects(Task)
         tableView.reloadData()
     }
@@ -86,11 +83,23 @@ extension TasksViewController : UITableViewDataSource, UITableViewDelegate {
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath)
         let titleText = cell.viewWithTag(100) as! UILabel
-        let memoText = cell.viewWithTag(200) as! UILabel
+        let alertDateTimeText = cell.viewWithTag(200) as! UILabel
         
         titleText.text = tasks![indexPath.row].title
-        memoText.text = tasks![indexPath.row].memo
-              
+        // 设置提醒日期
+        if tasks![indexPath.row].isAlertOn == true {
+            let df = NSDateFormatter()
+            df.dateFormat = Const.DATE_FORMAT_YEAR
+            // 如果是今年，则不显示年份
+            if df.stringFromDate(NSDate()) != df.stringFromDate(tasks![indexPath.row].alertDateTime!) {
+                df.dateFormat = Const.DATE_FORMAT
+            } else {
+                df.dateFormat = Const.DATE_FORMAT_NOYEAR
+            }
+            alertDateTimeText.text = df.stringFromDate(tasks![indexPath.row].alertDateTime!)
+        } else {
+            alertDateTimeText.text = ""
+        }
         return cell
     }
     // 设置条目高
@@ -102,6 +111,25 @@ extension TasksViewController : UITableViewDataSource, UITableViewDelegate {
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         selectedTask = tasks![indexPath.row]
         performSegueWithIdentifier("showDetailSegue", sender: indexPath)
+    }
+    
+    // 删除某一条目
+    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        let realm = try! Realm()
+        realm.beginWrite()
+        realm.delete(tasks![indexPath.row])
+        try! realm.commitWrite()
+        tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Top)
+        
+    }
+    
+    // 设置可以排序
+    func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return true
+    }
+    
+    func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
+        
     }
     
 }
