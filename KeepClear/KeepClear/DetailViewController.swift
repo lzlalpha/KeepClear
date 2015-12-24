@@ -22,11 +22,13 @@ class DetailViewController: UITableViewController {
     @IBOutlet weak var alertDateTimeText: UILabel!
     @IBOutlet weak var isAlertOnSwitch: UISwitch!
     
+    @IBOutlet weak var urgentSegment: UISegmentedControl!
     override func viewDidLoad() {
         super.viewDidLoad()
         
         if let _ = currTask { // 更新时
             titleText.text = currTask!.title
+            urgentSegment.selectedSegmentIndex = currTask!.urgent
             memoText.text = currTask!.memo
             if currTask?.isAlertOn == true {
                 isAlertOnSwitch.on = true
@@ -43,6 +45,7 @@ class DetailViewController: UITableViewController {
             }
         } else { // 新建时
             titleText.text = ""
+            urgentSegment.selectedSegmentIndex = 0
             memoText.text = ""
             alertDateTimeCell.hidden = true
             alertDateTimePickerCell.hidden = true
@@ -120,7 +123,11 @@ class DetailViewController: UITableViewController {
         
         if currTask == nil { // 新增
             currTask = Task()
-            currTask!.id = realm.objects(Task).max("id")! + 1
+            if realm.objects(Task).count <= 0 {
+                currTask?.id = 0
+            } else {
+                currTask!.id = realm.objects(Task).max("id")! + 1
+            }
         }
         realm.beginWrite()
         currTask!.title = titleText.text!
@@ -130,6 +137,8 @@ class DetailViewController: UITableViewController {
         let df = NSDateFormatter()
         df.dateFormat = Const.DATE_FORMAT
         currTask?.alertDateTime = df.dateFromString(alertDateTimeText.text!)
+        currTask?.urgent = urgentSegment.selectedSegmentIndex
+        
         realm.add(currTask!, update:true)
         try! realm.commitWrite()
         return true

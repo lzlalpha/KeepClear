@@ -32,12 +32,12 @@ class TasksViewController: UIViewController {
     @IBAction func edit(sender: AnyObject) {
         if editButton.tag == 100 { // 开始编辑
             editButton.tag = 200
-            editButton.title = "Done"
+            editButton.title = "完成"
             tableView.setEditing(true, animated: true)
             navigationItem.rightBarButtonItem?.enabled = false
         } else { // 完成编辑
             editButton.tag = 100
-            editButton.title = "Edit"
+            editButton.title = "编辑"
             tableView.setEditing(false, animated: true)
             navigationItem.rightBarButtonItem?.enabled = true
         }
@@ -84,6 +84,7 @@ extension TasksViewController : UITableViewDataSource, UITableViewDelegate {
         let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath)
         let titleText = cell.viewWithTag(100) as! UILabel
         let alertDateTimeText = cell.viewWithTag(200) as! UILabel
+        let urgentText = cell.viewWithTag(300) as! UILabel
         
         titleText.text = tasks![indexPath.row].title
         // 设置提醒日期
@@ -99,6 +100,22 @@ extension TasksViewController : UITableViewDataSource, UITableViewDelegate {
             alertDateTimeText.text = df.stringFromDate(tasks![indexPath.row].alertDateTime!)
         } else {
             alertDateTimeText.text = ""
+        }
+        
+        // 设置重要程度
+        switch tasks![indexPath.row].urgent {
+        case 0 :
+            urgentText.text = ""
+        case 1:
+            urgentText.text = "!"
+        case 2:
+            urgentText.text = "!!"
+            urgentText.textColor = urgentText.tintColor
+        case 3:
+            urgentText.text = "!!!"
+            urgentText.textColor = UIColor.redColor()
+        default :
+            urgentText.text = ""
         }
         return cell
     }

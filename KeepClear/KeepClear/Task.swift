@@ -18,8 +18,10 @@ class Task: Object {
     dynamic var isAlertOn = false
     // 提醒日期时间
     dynamic var alertDateTime : NSDate?
+    // 紧急程度
+    dynamic var urgent = 0
     // 备注
-    dynamic var memo = ""
+    dynamic var memo : String?
     
     override static func primaryKey() -> String? {
         return "id"
